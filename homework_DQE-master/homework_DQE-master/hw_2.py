@@ -39,7 +39,7 @@ def start_game():
 def who_first(players):
     turning = players[random.randint(0, 1)]
     print(turning, " starts the game")
-    if turning == 0:
+    if turning == players[0]:
         return 0, 1  # for setting turn in the battle (порядок ходів)
     else:
         return 1, 0
@@ -63,7 +63,7 @@ def battle(players, rounds, turn):
         while winner == -1 and space_end(board) == 0:
             step_player(players[turn[0]], marks[turn[0]], board)
             winner = check(board)
-            if winner != -1:
+            if winner != -1 or space_end(board) != 0:
                 break
 
             step_player(players[turn[1]], marks[turn[1]], board)
@@ -76,8 +76,11 @@ def battle(players, rounds, turn):
 
 
 def winner_announce(players, score):
-    print(f"Congratulations to {players[0] if score[0] > score[1] else players[1]} 🔥🔥🔥"
-          f"\nTotal score in the battle {score[0]}:{score[1]}")
+    if score[0] == score[1]:
+        print(f"Congratulations to both. It's DRAW")
+    else:
+        print(f"Congratulations to {players[0] if score[0] > score[1] else players[1]} 🔥🔥🔥")
+    print(f"\nTotal score in the battle {score[0]}:{score[1]}")
 
 
 def round_winner_announce(players, winner, board, score):
