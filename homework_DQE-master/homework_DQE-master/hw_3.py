@@ -1,10 +1,8 @@
 import typing
-import functools
 from itertools import chain
-from typing import List
 from collections import Counter
 
-T = typing.TypeVar('T', str, float)
+# T = typing.TypeVar('T', str, float)
 already_found_letters = []
 suitable_words_global = []
 
@@ -21,7 +19,7 @@ def game():
         template = get_template(template, right_letter)
         suitable_words = determine_words_by_template(template)
         letters = most_likely_letter(suitable_words)  # list of most likely variables
-        attempt, right_letter = acceptance_of_player(template, letters)
+        attempt, right_letter = acceptance_of_player(letters)
         attempts += attempt
         guessed_word = try_to_guess(suitable_words, right_letter, template)
     summary(attempts, guessed_word)
@@ -40,7 +38,7 @@ def initial_template_of_word() -> str:
     return template
 
 
-def acceptance_of_player(letters: str):  # return attempts
+def acceptance_of_player(letters: tuple):  # return attempts
     right_letter = ""
     attempts = 0
     for letter in letters:
@@ -55,7 +53,7 @@ def acceptance_of_player(letters: str):  # return attempts
     return attempts, right_letter
 
 
-def check_template(tested: str, etalon: str, letter: str)-> int:
+def check_template(tested: str, etalon: str, letter: str) -> int:
     if len(tested) != len(etalon):
         return 0
     for i in range(len(tested)):
@@ -120,7 +118,7 @@ def most_likely_letter(checklist: tuple) -> tuple:  # specified type  List('T', 
     return probable_letters
 
 
-def only_distinct_letters(letters: str) -> str:
+def only_distinct_letters(letters: list) -> list:
     global already_found_letters
     letters = [let for let in letters if let not in already_found_letters]
     return letters
