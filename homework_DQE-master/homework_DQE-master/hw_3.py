@@ -33,7 +33,8 @@ def game():
 def show_words():
     with open("D:\\DQE\\words.txt", "r") as f:
         data = f.read()
-    print(data)
+        print(data)
+        print("HANGMAN")
 
 
 def initial_template_of_word() -> str:
@@ -91,7 +92,7 @@ def file_read():
 
 def determine_words_by_template(template: str) -> tuple:  # return suitable words
     global suitable_words_global, probable_letters
-    suitable_words = suitable_words_global
+    suitable_words = list(set(suitable_words_global))
     suitable_words = determine_by_letters(template, suitable_words)
     suitable_words_global = suitable_words
     list_of_used_letters = list(set(chain.from_iterable(template.replace('_', ' ').strip())))
@@ -121,8 +122,8 @@ def find_word_by_letter(index: int, letter: str, source: list) -> tuple:
 
 def most_likely_letter(checklist: tuple) -> tuple:  # specified type  List('T', str, float)
     all_letters = list(chain.from_iterable(checklist))  # take all letters from source
-    total_letters_count = len(all_letters)
     letters = only_distinct_letters(all_letters)
+    total_letters_count = len(letters)
     count = Counter(letters)
     probable_letters = probability_of_occurring(count, total_letters_count)
     return probable_letters
