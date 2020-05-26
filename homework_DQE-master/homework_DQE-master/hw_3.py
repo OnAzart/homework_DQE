@@ -3,8 +3,8 @@ from itertools import chain
 from collections import Counter
 
 # T = typing.TypeVar('T', str, float)
-already_found_letters = []
 suitable_words_global = []
+probable_letters = list("abcdefghhijklmnopqrstuvwxyz'")
 
 
 def game():
@@ -20,6 +20,9 @@ def game():
         suitable_words = determine_words_by_template(template)
         letters = most_likely_letter(suitable_words)  # list of most likely variables
         attempt, right_letter = acceptance_of_player(letters)
+        if not attempt:
+            wrong_word()
+            return 0
         attempts += attempt
         guessed_word = try_to_guess(suitable_words, right_letter, template)
     summary(attempts, guessed_word)
@@ -39,8 +42,10 @@ def initial_template_of_word() -> str:
 
 
 def acceptance_of_player(letters: tuple):  # return attempts
+    global probable_letters
     right_letter = ""
     attempts = 0
+    rightness = 0
     for letter in letters:
         print(f"\nIn your word, with {letter[1]} probability, letter '{letter[0]}' might be!")
         rightness = input("Is it right? (Yes - 1, No - 0) ")
@@ -50,6 +55,10 @@ def acceptance_of_player(letters: tuple):  # return attempts
         if int(rightness) == 1:
             right_letter = letter[0]
             break
+        else:
+            probable_letters.remove(letter[0])
+    if rightness == '0':
+        return 0, 0
     return attempts, right_letter
 
 
@@ -81,11 +90,12 @@ def file_read():
 
 
 def determine_words_by_template(template: str) -> tuple:  # return suitable words
-    global suitable_words_global, already_found_letters
+    global suitable_words_global, probable_letters
     suitable_words = suitable_words_global
     suitable_words = determine_by_letters(template, suitable_words)
     suitable_words_global = suitable_words
-    already_found_letters = already_found_letters + list(set(chain.from_iterable(template.replace('_', ' ').strip())))
+    list_of_used_letters = list(set(chain.from_iterable(template.replace('_', ' ').strip())))
+    probable_letters = [let for let in probable_letters if let not in list_of_used_letters]
     return tuple(suitable_words)
 
 
@@ -94,7 +104,7 @@ def determine_by_letters(template: str, suitable_words: list) -> list:
         length = len(template)
         suitable_words = [word for word in suitable_words if len(word) == length]
     for i in range(len(template)):
-        if (template[i].isalpha() or template[i] == "'") and template[i] not in already_found_letters:
+        if (template[i].isalpha() or template[i] == "'") and template[i] in probable_letters:
             suitable_words = find_word_by_letter(i, template[i], suitable_words)
     return suitable_words
 
@@ -120,7 +130,7 @@ def most_likely_letter(checklist: tuple) -> tuple:  # specified type  List('T', 
 
 def only_distinct_letters(letters: list) -> list:
     global already_found_letters
-    letters = [let for let in letters if let not in already_found_letters]
+    letters = [let for let in letters if let in probable_letters]
     return letters
 
 
