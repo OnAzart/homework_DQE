@@ -1,24 +1,24 @@
-import typing
-from itertools import chain
 from collections import Counter
+from itertools import chain
+import re
+import typing
 
-# T = typing.TypeVar('T', str, float)
 suitable_words_global = []
 probable_letters = list("abcdefghhijklmnopqrstuvwxyz'")
 
 
 def game():
+    print("--HANGMAN--")
     attempts = 0
     template = ""
     guessed_word = 0
     right_letter = ""
 
-    show_words()
-    file_read()
     while not guessed_word or template.isalpha() or not suitable_words_global:
         template = get_template(template, right_letter)
         suitable_words = determine_words_by_template(template)
-        letters = most_likely_letter(suitable_words)  # list of most likely variables
+        print('\n' + str(len(suitable_words)) + ' suitable words')
+        letters = most_likely_letter(suitable_words)  # list of most likely letters
         attempt, right_letter = acceptance_of_player(letters)
         if not attempt:
             wrong_word()
@@ -30,19 +30,19 @@ def game():
         wrong_word()
 
 
-def show_words():
-    with open("D:\\DQE\\words.txt", "r") as f:
-        data = f.read()
-        print(data)
-        print("HANGMAN")
-
-
 def initial_template_of_word() -> str:
+    """Початкове задання довжини файлу"""
     template = input("Show number of letters in your word (example: '_____'):  ")
+    while not template.replace('_', ' ').isspace():
+        template = input("\n--This sentence can contain only '_' symbol"
+                         "\nTry to enter again (example: '_____'):  ")
+    file_read(len(template))
     return template
 
 
 def acceptance_of_player(letters: tuple):  # return attempts
+    """Підтвердження користувачем заданої літери
+       Проходження всіх можливих літер"""
     global probable_letters
     right_letter = ""
     attempts = 0
@@ -64,6 +64,8 @@ def acceptance_of_player(letters: tuple):  # return attempts
 
 
 def check_template(tested: str, etalon: str, letter: str) -> int:
+    """Перевірка чи заданий користувачем шаблон є валідний
+       звіряється на кількість символів та порівнюється з попередньо заданим шаблоноим"""
     if len(tested) != len(etalon):
         return 0
     for i in range(len(tested)):
@@ -73,6 +75,7 @@ def check_template(tested: str, etalon: str, letter: str) -> int:
 
 
 def get_template(template: str, right_letter: str) -> str:
+    """Задання шаблону"""
     if template == "":
         return initial_template_of_word()
     else:
@@ -83,59 +86,45 @@ def get_template(template: str, right_letter: str) -> str:
         return temp
 
 
-def file_read():
+def file_read(length):
     f = open("D:\\DQE\\words.txt", "r")
     global suitable_words_global
-    suitable_words_global = f.read().lower().replace("'", "'").split()
+    suitable_words_global = f.read().lower().split()
+    suitable_words_global = [word for word in suitable_words_global if len(word) == length]
     f.close()
 
 
 def determine_words_by_template(template: str) -> tuple:  # return suitable words
+    """Визначення ймовірних слів, шляхом комунікації з глобальними змінними та їх переписання"""
     global suitable_words_global, probable_letters
     suitable_words = list(set(suitable_words_global))
-    suitable_words = determine_by_letters(template, suitable_words)
+    suitable_words = re.findall(template.replace('_', '.'), ''.join(suitable_words))
     suitable_words_global = suitable_words
+
     list_of_used_letters = list(set(chain.from_iterable(template.replace('_', ' ').strip())))
     probable_letters = [let for let in probable_letters if let not in list_of_used_letters]
+    # deleting already used letters
     return tuple(suitable_words)
 
 
-def determine_by_letters(template: str, suitable_words: list) -> list:
-    if template.replace('_', ' ').isspace():
-        length = len(template)
-        suitable_words = [word for word in suitable_words if len(word) == length]
-    for i in range(len(template)):
-        if (template[i].isalpha() or template[i] == "'") and template[i] in probable_letters:
-            suitable_words = find_word_by_letter(i, template[i], suitable_words)
-    return suitable_words
-
-
-def find_word_by_letter(index: int, letter: str, source: list) -> tuple:
-    right_list = []
-    for word in source:
-        if len(word) <= index:
-            continue
-        if word[index] == letter:
-            right_list.append(word)
-    return tuple(right_list)  # for being immutable
-
-
-def most_likely_letter(checklist: tuple) -> tuple:  # specified type  List('T', str, float)
+def most_likely_letter(checklist: tuple) -> typing.Tuple[str, int]:
+    """Повертає літери з ймовірністю трапляння"""
     all_letters = list(chain.from_iterable(checklist))  # take all letters from source
     letters = only_distinct_letters(all_letters)
     total_letters_count = len(letters)
-    count = Counter(letters)
-    probable_letters = probability_of_occurring(count, total_letters_count)
+    probable_letters = probability_of_occurring(Counter(letters), total_letters_count)
     return probable_letters
 
 
 def only_distinct_letters(letters: list) -> list:
+    """Зі списку букв забираємо всі букви, що не можуть трапитись"""
     global already_found_letters
     letters = [let for let in letters if let in probable_letters]
     return letters
 
 
 def probability_of_occurring(count: Counter, total_letters_count: int) -> tuple:
+    """Вирахування ймовірності трапляння всіх унікальних(не використаних) букв"""
     list_of_probability = []
     for letter, frequency in dict(count.most_common()).items():  # sort counter by values and change in dictionary
         probability = round(frequency / total_letters_count * 100, 2)
@@ -144,6 +133,7 @@ def probability_of_occurring(count: Counter, total_letters_count: int) -> tuple:
 
 
 def try_to_guess(suitable_words: tuple, letter: str, template: str) -> str:  # return guessed word or nothing
+    """Спроба вгадати слово у випадку, якщо немає сенсу продовжувати"""
     if len(suitable_words) == 1:
         return suitable_words[0]
     if template.count('_') == 1:
@@ -158,4 +148,5 @@ def wrong_word():
     print("Your word isn't in our dictionary. Play again :(")
 
 
-game()
+if __name__ == '__main__':
+    game()
