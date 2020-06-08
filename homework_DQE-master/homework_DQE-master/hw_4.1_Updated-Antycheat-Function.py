@@ -5,7 +5,7 @@ from collections import Counter
 import typing
 
 
-def set_words(word_len: int, filename: str = "words.txt") -> typing.Set[str]:
+def set_words(word_len: int, filename: str = "D://DQE//words.txt") -> typing.Set[str]:
     """
         Получить все слова, которые имеют заданную длину из данного текстового файла.
 
@@ -75,8 +75,8 @@ def antycheat(user_input: str, last_user_input: str, initial_len_of_input: int, 
         correctness = 0
 
     for i in range(len(last_user_input)):
-        if last_user_input[i] != user_input[i]:
-            if last_user_input[i] != new_letter:
+        if last_user_input[i] != corrected_input[i]:
+            if corrected_input[i] != new_letter:
                 correctness = 0
                 break
 
@@ -92,8 +92,8 @@ def antycheat(user_input: str, last_user_input: str, initial_len_of_input: int, 
             correctness = 0
 
         for i in range(len(last_user_input)):
-            if last_user_input[i] != user_input[i]:
-                if last_user_input[i] != new_letter:
+            if last_user_input[i] != corrected_input[i]:
+                if corrected_input[i] != new_letter:
                     correctness = 0
                     break
 
