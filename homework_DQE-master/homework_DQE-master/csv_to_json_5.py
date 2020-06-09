@@ -13,8 +13,7 @@ with open(path_csv, 'r') as f:
     f_csv = csv.reader(f)
     headers = next(f_csv)
     index_password = headers.index("password")
-    csv_file = [row[:index_password]+row[index_password+1:] for row in f_csv]
-    csv_json = json.dumps(csv_file)
+    csv_file = [row[:index_password] + row[index_password + 1:] for row in f_csv]
 
-with open(path_json,"w") as f:
-     f.write(csv_json)
+with open(path_json, "w") as f:
+    json.dump(csv_file, f)
