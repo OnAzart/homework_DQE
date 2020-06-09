@@ -56,7 +56,8 @@ def get_percent(stats: Counter) -> typing.Tuple[str, float]:
     return likeliest_letter, likelihood
 
 
-def antycheat(user_input: str, last_user_input: str, initial_len_of_input: int, new_letter: str) -> typing.Tuple[str, int]:
+def antycheat(user_input: str, last_user_input: str, initial_len_of_input: int, right_letter: str) -> typing.Tuple[
+    str, int]:
     """
         Исправляет ввод пользователя на основе предыдущих букв и длинны слова.
 
@@ -68,43 +69,20 @@ def antycheat(user_input: str, last_user_input: str, initial_len_of_input: int, 
         return user_input, len(user_input)
 
     corrected_input: str = user_input
-    correctness = 1
 
-
-    if len(corrected_input) != initial_len_of_input:
-        correctness = 0
-
-    for i in range(len(last_user_input)):
-        if last_user_input[i] != corrected_input[i]:
-            if corrected_input[i] != new_letter:
-                correctness = 0
-                break
-
-    while not correctness:
-        print("Ты жульничаешь? Вроде в прошлый раз слово было другое.")
-        print(f"У меня все ходы записаны. "
-              f"Последний вариант был таким {last_user_input} и букв там было {len(last_user_input)}. "
-              f"\nСледующая буква - {new_letter}: ")
+    while len(corrected_input) != initial_len_of_input:
+        print("Ты жульничаешь? Вроде в прошлый раз слово было другой длинны")
+        print(
+            f"У меня все ходы записаны. Последний вариант был таким {last_user_input} и букв там было {len(last_user_input)} .")
         corrected_input = input("Попробуй еще раз ").lower()
 
-        correctness = 1
-        if len(corrected_input) != initial_len_of_input:
-            correctness = 0
-
-        for i in range(len(last_user_input)):
-            if last_user_input[i] != corrected_input[i]:
-                if corrected_input[i] != new_letter:
-                    correctness = 0
-                    break
-
-    differences: typing.List[bool] = [last_user_input[i] != corrected_input[i]
-                                      for i in range(initial_len_of_input)
-                                      if last_user_input[i] != '_']
+    differences: typing.List[bool] = [last_user_input[i] != corrected_input[i] and right_letter != corrected_input[i]
+                                      for i in range(initial_len_of_input)]
 
     if len(differences) == 0:
         return corrected_input, initial_len_of_input
 
-    has_differences: bool = all(differences) or reduce(lambda x, y: x != y, differences)
+    has_differences: bool = True in differences
 
     while has_differences:
         print("Что-то тут не так.")
@@ -112,16 +90,16 @@ def antycheat(user_input: str, last_user_input: str, initial_len_of_input: int, 
         print(f"А именно {last_user_input}.")
         corrected_input = input("Давай, соберись. Попробуй снова   ").lower()
 
-        differences = [last_user_input[i] != corrected_input[i]
-                       for i in range(initial_len_of_input)
-                       if last_user_input[i] != '_']
-        has_differences = all(differences) or reduce(lambda x, y: x != y, differences)
+        differences = [last_user_input[i] != corrected_input[i] and right_letter != corrected_input[i]
+                       for i in range(initial_len_of_input)]
+
+        has_differences = True in differences
 
     return corrected_input, initial_len_of_input
 
 
 def play_game():
-#Инициализируем все перед началом игры
+    # Инициализируем все перед началом игры
     is_playing: bool = True
     was_correct: bool = True
 
@@ -137,7 +115,8 @@ def play_game():
             last_word: str = current_word
             print(" Помнишь какое слово ты загадал ?")
             current_word = input("(Введи, пожалуйста, угаданные мной буквы, а остальные замени _ ) ").lower()
-            current_word, len_of_word = antycheat(current_word, last_word, len_of_word, '_' if not guesses else guesses[-1])
+            current_word, len_of_word = antycheat(current_word, last_word, len_of_word,
+                                                  '' if not guesses else guesses[-1])
 
         # если счетчик неугаданных букв равен нулю, то конец игры
         if current_word.count('_') == 0:
