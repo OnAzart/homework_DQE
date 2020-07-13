@@ -1,0 +1,9 @@
+id;priority;details;status;deadline;completed;project
+1;9;deal with suppliers of displays;in progress;31.12.2020;;TeslaPhone
+2;10;find location for servers;done;03.08.2020;29.07.2020;EpamCloud
+3;10;create OS or specify(Android);in progress;10.03.2022;;TeslaPhone
+4;4;rent office in Barcelone;canceled;15.06.2022;;EpamCloud
+5;9;build starhip port;planning;30.10.2023;;AmazonFly
+6;7;hire new big-data developers;done;20.06.2020;26.05.2020;AmazonFly
+7;9;find genious of making engines;canceled;25.10.2023;;EbayCar
+8;5;make advertisement;in progress;25.12.2024;;EbayCar
